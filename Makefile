@@ -68,12 +68,20 @@ $(APP_OBJ): $(APP_SRC)
 # ----- LINK -----
 BIN := $(BINDIR)/prog_$(BUILDTYPE)
 
-all: $(BIN)
-	@echo "Done."
+# Build both on plain `make`
+all: build_release build_debug
 	@echo "To run normal (release) build, use \"make run\""
-	@echo "To run debug build, use \"make run\""
+	@echo "To run debug build, use \"make debug\""
 	@echo "To check normal build for memory leaks, use \"make valgrind\""
 .PHONY: all
+
+build_release:
+	$(MAKE) DEBUG=0 $(BINDIR)/prog_release
+	@echo "Release build done."
+
+build_debug:
+	$(MAKE) DEBUG=1 $(BINDIR)/prog_debug
+	@echo "Debug build done."
 
 $(BIN): $(CORE_OBJ) $(APP_OBJ)
 	@mkdir -p $(dir $@)
@@ -87,11 +95,10 @@ $(BIN): $(CORE_OBJ) $(APP_OBJ)
 clean:
 	$(RM) -r $(BUILDDIR)
 
-run: $(BIN)
-	./$(BIN)
+run:
+	./$(BINDIR)/prog_release
 
 debug:
-	$(MAKE) DEBUG=1
 	./$(BINDIR)/prog_debug
 
 valgrind: $(BIN)
