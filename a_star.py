@@ -42,7 +42,7 @@ def reconstruct_frontier(frontier):
 
 def distance(x0, y0, x1, y1):
     """Euclidean distance between two nodes"""
-    return sqrt((y1 - y0)*(y1 - y0) + (x1 - x0)*(x1 - x0))
+    return sqrt((x0 - x1)*(x0 - x1) + (y0 - y1)*(y0 - y1))
 
 def a_star(x0, y0, x1, y1, world):
     """A* algorithm"""
@@ -61,7 +61,8 @@ def a_star(x0, y0, x1, y1, world):
     f_scores[x0][y0] = h
 
     # Discovered nodes, sorted by f-score, then h(n), then g-score
-    frontier = [(f_scores[x0][y0], h, g_scores[x0][y0], (x0,y0))]
+    seq = 0                 # Record order points are added to the frontier
+    frontier = [(f_scores[x0][y0], seq, g_scores[x0][y0], (x0,y0))]
     heapq.heapify(frontier)
 
     came_from = {}          # Path to current node
@@ -78,7 +79,7 @@ def a_star(x0, y0, x1, y1, world):
 
         # Skip stale frontier entries, allow a tiny epsilon for rounding
         g_popped = curr_from_frontier[2]
-        if g_popped > g_scores[current[0]][current[1]] + 1e-9:
+        if g_popped > g_scores[current[0]][current[1]] + 1e-12:
             continue
         else:
             closed.add((current[0],current[1]))
@@ -101,8 +102,9 @@ def a_star(x0, y0, x1, y1, world):
                 h_neighbor = distance(neighbor[0],neighbor[1],x1,y1)
                 f_neighbor = g_neighbor + h_neighbor
                 f_scores[neighbor[0]][neighbor[1]] = f_neighbor
+                seq += 1
                 heapq.heappush(
-                    frontier, (f_neighbor, h_neighbor, g_neighbor, 
+                    frontier, (f_neighbor, seq, g_neighbor,
                                (neighbor[0],neighbor[1]))
                 )
 
