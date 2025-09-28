@@ -30,6 +30,16 @@ def reconstruct_path(came_from, current):
         path.insert(0, current)
     return path
 
+def reconstruct_frontier(frontier):
+    """Build the dark outer rim of the searched cloud"""
+    rim = set()
+
+    for item in frontier:
+        if not item[3] in rim:
+            rim.add(item[3])
+    
+    return rim
+
 def distance(x0, y0, x1, y1):
     """Euclidean distance between two nodes"""
     return sqrt((y1 - y0)*(y1 - y0) + (x1 - x0)*(x1 - x0))
@@ -75,7 +85,10 @@ def a_star(x0, y0, x1, y1, world):
 
         # Finished then the goal is reached
         if current == (x1,y1):
-            return reconstruct_path(came_from, current)
+            return { "path": reconstruct_path(came_from, current),
+                     "cloud": closed,
+                     "rim": reconstruct_frontier(frontier)
+                    }
 
         for neighbor in valid_neighbors(current, world):
             d = distance(current[0],current[1],neighbor[0],neighbor[1])

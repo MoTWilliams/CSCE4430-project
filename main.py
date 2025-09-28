@@ -1,17 +1,21 @@
 """Run A*, then the modified A* and return the results"""
 from a_star import a_star
 
-def print_world(world,path):
+def print_world(world,result):
     """Display the map"""
     # pylint: disable=consider-using-enumerate
     for y in reversed(range(len(world[0]))):
         for x in range(len(world)):
             if world[x][y] == 0:
                 print("██",end="")
-            elif (x,y) in path:
+            elif (x,y) in result["path"]:
                 print("[]",end="")
+            elif (x,y) in result["cloud"]:
+                print("..",end="")
+            elif (x,y) in result["rim"]:
+                print("::",end="")
             else:
-                print("--",end="")
+                print("  ",end="")
         print()
 
 def main():
@@ -52,7 +56,7 @@ def main():
     start = (1,1)
     finish = (28,1)
 
-    path = a_star(start[0],start[1],finish[0],finish[1],world)
-    print_world(world, path)
+    result = a_star(start[0],start[1],finish[0],finish[1],world)
+    print_world(world, result)
 
 main()
