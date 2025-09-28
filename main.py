@@ -53,8 +53,8 @@ def main():
              (0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0),
              (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0))
 
-    start = (1,1)
-    finish = (28,1)
+    start = (28,1)
+    finish = (1,1)
 
     result = a_star(start[0],start[1],finish[0],finish[1],world)
     print_world(world, result)
