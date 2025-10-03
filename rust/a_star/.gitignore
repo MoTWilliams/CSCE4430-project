@@ -1,0 +1,9 @@
+# Cargo build artifacts (debug/release, incremental, deps, etc.)
+/target/
+
+# rustfmt backup files
+**/*.rs.bk
+
+# Optional: LLVM coverage/profiling outputs
+*.profraw
+*.profdata

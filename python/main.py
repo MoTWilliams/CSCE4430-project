@@ -1,5 +1,5 @@
 """Run A*, then the modified A* and return the results"""
-from a_star import a_star
+from python.a_star import a_star
 
 def print_world(world,result):
     """Display the map"""
