@@ -1,3 +1,6 @@
+mod a_star;
+use a_star::a_star;
+
 fn main() {
     const W: usize = 30;
     const H: usize = 30;
@@ -38,7 +41,9 @@ fn main() {
 
     let start = (28,1);
     let finish = (1,1);
-    
+
+    a_star();
+
     // Print the empty map
     for y in (0..H).rev() {
         for x in 0..W {
