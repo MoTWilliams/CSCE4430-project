@@ -24,8 +24,18 @@ class FrontierObj:
         # Enforce min-heap comparison and tie-breaker
         return (self.f, self.seq, self.g) < (other.f, other.seq, other.g)
 
+class FrontierObjMod:
+    def __init__(self, f: float, seq: int, g: float, pos: Coord):
+        self.f = f
+        self.seq = seq
+        self.g = g
+        self.pos = Coord(pos.x,pos.y)
+    def __lt__(self, other):
+        # Enforce min-heap comparison and tie-breaker
+        return (self.f, -self.g, self.seq) < (other.f, -other.g, other.seq)
+
 class Result:
     def __init__(self):
-        self.path = None
-        self.rim = None
-        self.cloud = None
+        self.path: list = []
+        self.rim: set = set()
+        self.cloud: set = set()

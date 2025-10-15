@@ -1,7 +1,7 @@
 # pylint: disable=missing-docstring
 from math import sqrt
 
-from Map import G
+from map_const import G
 from custom_types import Coord
 
 EPS = 1e-9

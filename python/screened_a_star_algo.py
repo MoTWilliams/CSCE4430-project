@@ -5,21 +5,43 @@ from map_const import H, W, S, G, in_bounds, is_wall
 from custom_types import Coord, FrontierObj, Result
 from shared import EPS, euc_dist, h, reconstruct_path, build_rim
 
-def valid_neighbors(c: Coord):
+def screened_neighbors(c: Coord):
     # N, E, S, W, NE, SE, SW, NE
     mask = (Coord(c.x,c.y+1), Coord(c.x+1,c.y), Coord(c.x,c.y-1),
             Coord(c.x-1,c.y), Coord(c.x+1,c.y+1), Coord(c.x+1,c.y-1),
             Coord(c.x-1,c.y-1), Coord(c.x-1,c.y+1))
 
-    not_walls = []
+    # Legs of the vector from current to goal
+    vg = Coord(G.x - c.x, G.y - c.y)
 
-    for check in mask:
-        if in_bounds(check) and not is_wall(check):
-            not_walls.append(check)
+    better = []
+    toward_goal = []
+    others = []
 
-    return not_walls
+    for n in mask:
+        if in_bounds(n) and not is_wall(n):
+            # Compare euclidean distances from goal
+            if euc_dist(n, G) + EPS < euc_dist(c, G):
+                better.append(n)
+                continue
 
-def a_star():
+            # Legs of the vector from current to neighbor
+            vs = Coord(n.x - c.x, n.y - c.y)
+
+            # Direction of the step in relation to vg
+            dot_prod = vg.x*vs.x + vg.y*vs.y
+
+            # Points toward the goal
+            if dot_prod > 0:
+                toward_goal.append(n)
+            else:
+                others.append(n)
+
+    # Return in order of closest trending toward goal--doesn't change the cloud
+    # This avoids things breaking. I still don't know what's going on.
+    return better + toward_goal + others
+
+def screened_a_star():
     # g[n] is the cheapest path from start to node n. This is an array the size
     # of the map with g[start] initialized to 0 and the rest to infinity.
     g = [[float('inf') for _ in range(H)] for _ in range(W)]
@@ -70,7 +92,7 @@ def a_star():
             return result
 
         # Expand node
-        for n in valid_neighbors(c):
+        for n in screened_neighbors(c):
             # g[current] + d(current)
             candidate_g = g[c.x][c.y] + euc_dist(c,n)
 
@@ -87,4 +109,4 @@ def a_star():
                 seen.add(n)
 
     # Return nothing if no path found
-    return Result()
+    return None

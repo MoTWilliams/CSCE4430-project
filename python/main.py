@@ -3,7 +3,9 @@
 from termcolor import colored as cd
 
 from a_star_algo import a_star
-from Map import W, H, S, G, is_wall
+from screened_a_star_algo import screened_a_star
+from mod_a_star_algo import mod_a_star
+from map_const import W, H, S, G, is_wall
 from custom_types import Coord, Result
 
 def print_result(res: Result):
@@ -27,3 +29,7 @@ def print_result(res: Result):
         print()
 
 print_result(a_star())
+print()
+print_result(screened_a_star())
+print()
+print_result(mod_a_star())

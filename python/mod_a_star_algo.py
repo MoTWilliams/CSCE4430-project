@@ -2,7 +2,7 @@
 import heapq
 
 from map_const import H, W, S, G, in_bounds, is_wall
-from custom_types import Coord, FrontierObj, Result
+from custom_types import Coord, FrontierObjMod, Result
 from shared import EPS, euc_dist, h, reconstruct_path, build_rim
 
 def valid_neighbors(c: Coord):
@@ -19,7 +19,7 @@ def valid_neighbors(c: Coord):
 
     return not_walls
 
-def a_star():
+def mod_a_star():
     # g[n] is the cheapest path from start to node n. This is an array the size
     # of the map with g[start] initialized to 0 and the rest to infinity.
     g = [[float('inf') for _ in range(H)] for _ in range(W)]
@@ -33,7 +33,7 @@ def a_star():
 
     # Discovered nodes, sorted by f-score, then order added, then g-score
     seq = 0
-    open_set = [FrontierObj(f[S.x][S.y], seq, g[S.x][S.y], S)]
+    open_set = [FrontierObjMod(f[S.x][S.y], seq, g[S.x][S.y], S)]
     heapq.heapify(open_set)
 
     # Pairs of coordinates and their cheapest predecessors
@@ -83,7 +83,7 @@ def a_star():
                 # Add the neighbor to the open set
                 seq += 1
                 heapq.heappush(
-                    open_set, FrontierObj(f[n.x][n.y], seq, g[n.x][n.y], n))
+                    open_set, FrontierObjMod(f[n.x][n.y], seq, g[n.x][n.y], n))
                 seen.add(n)
 
     # Return nothing if no path found
