@@ -1,5 +1,5 @@
 use ordered_float::NotNan;
-use std::{cmp::Ordering, collections::{HashMap, HashSet}};
+use std::{cmp::Ordering, collections::{HashSet}};
 
 // Neatly contain (x,y) coordinates
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
@@ -20,8 +20,12 @@ pub struct State {
     pub pos: Coord,
 }
 
-// BinaryHeap is a max-heap by default, so we must re-define Ord to make it a 
-// min-heap, as well specifying to use order pushed (seq) as tie-breaker
+// BinaryHeap is a max-heap by default, so we must re-define (implement) State's
+// Ord and PartialOrd traits to make it a min-heap, as well specifying to use
+// order pushed (seq) as tie-breaker. This is similar to operator overloading
+// in C++.
+
+
 impl Ord for State {
     fn cmp(&self, other: &Self) -> Ordering {
         other.f.cmp(&self.f).then_with(|| self.seq.cmp(&other.seq))
@@ -38,8 +42,8 @@ impl PartialOrd for State {
 pub const G_EPS: f64 = 1e-12;
 
 // Package the path and cloud for visualization
-pub struct Result {
-    pub path: HashMap<Coord,Coord>,
+pub struct AStarResult {
+    pub path: Vec<Coord>,
     pub cloud: HashSet<Coord>,
     pub rim: HashSet<Coord>
 }

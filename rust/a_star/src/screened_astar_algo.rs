@@ -8,13 +8,13 @@ use crate::shared::{euc_distance, h, reconstruct_path, open_set_coords};
 use ordered_float::NotNan;
 use std::collections::{HashMap, HashSet, BinaryHeap};
 
-fn valid_neighbors(n: Coord) -> Vec<Coord> {
-    let mut valid: Vec<Coord> = Vec::new();
+fn screened_valid_neighbors(c: Coord) -> Vec<Coord> {
+    let mut not_wall: Vec<Coord> = Vec::new();
 
-    // Check N, E, S, W, NE, SE, SW, NE
+    // c = current; Check N, E, S, W, NE, SE, SW, NE
     let mask: [(usize,usize); 8] = [
-        (n.x,n.y+1),(n.x+1,n.y),(n.x,n.y-1),(n.x-1,n.y),
-        (n.x+1,n.y+1),(n.x+1,n.y-1),(n.x-1,n.y-1),(n.x-1,n.y+1)
+        (c.x,c.y+1),(c.x+1,c.y),(c.x,c.y-1),(c.x-1,c.y),
+        (c.x+1,c.y+1),(c.x+1,c.y-1),(c.x-1,c.y-1),(c.x-1,c.y+1)
     ];
 
     // Build the valid (not wall) neighbor list
@@ -22,15 +22,35 @@ fn valid_neighbors(n: Coord) -> Vec<Coord> {
         let current = Coord {x: check.0, y: check.1};
 
         if in_bounds(current) && !is_wall(current) {
-            valid.push(current);
+            not_wall.push(current);
         }
     }
 
-    // Return the list
-    valid
+    // Screen neighbors
+    // Vector from current to goal, split into x and y elements
+    let vg = (F.x as f64 - c.x as f64, F.y as f64 - c.y as f64);
+    let mut passing: Vec<Coord> = Vec::new();
+    let mut others: Vec<Coord> = Vec::new();
+
+    // Reminder: c = current, n = neighbor
+    for &n in &not_wall {
+        // Vector from current to neighbor
+        let vs = (n.x as f64 - c.x as f64, n.y as f64 - c.y as f64);
+        let dot_prod = vg.0*vs.0 + vg.1*vs.1;
+
+        // Dot product shows the step direction in relation to direction to goal
+        if dot_prod > 0.0 {
+            passing.push(n);
+        } else {
+            others.push(n);
+        }
+    }
+
+    passing.extend(others);
+    passing
 }
 
-pub fn a_star() -> Option<AStarResult> {
+pub fn screened_a_star() -> Option<AStarResult> {
     // Initialize the frontier with the start node
     let mut open_set: BinaryHeap<State> = BinaryHeap::new();
     let mut seen: HashSet<Coord> = HashSet::new();  // For visualization
@@ -84,6 +104,7 @@ pub fn a_star() -> Option<AStarResult> {
 
         // Finished when the goal is reached
         if current.pos == F {
+            println!("Path found");
             return Some(AStarResult {
                 path: reconstruct_path(came_from, current.pos), 
                 cloud: seen, 
@@ -92,7 +113,7 @@ pub fn a_star() -> Option<AStarResult> {
         }
 
         // Expand node
-        for neighbor in valid_neighbors(n) {
+        for neighbor in screened_valid_neighbors(n) {
             let nei_idx: usize = neighbor.x * H + neighbor.y;
             let d = euc_distance(n, neighbor);
             let maybe_g = g_scores[cur_idx] + d;
@@ -119,5 +140,6 @@ pub fn a_star() -> Option<AStarResult> {
     }
 
     // Return nothing if no path found
+    println!("Search failed");
     None
 }
