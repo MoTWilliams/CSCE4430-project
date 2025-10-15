@@ -1,0 +1,8 @@
+[package]
+name = "a_star"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+colored_text = "0.3.0"
+ordered-float = "5.1.0"
