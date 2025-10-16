@@ -3,10 +3,8 @@
 from termcolor import colored as cd
 
 from a_star_algo import a_star
-from screened_a_star_algo import screened_a_star
-from mod_a_star_algo import mod_a_star
 from map_const import W, H, S, G, is_wall
-from custom_types import Coord, Result
+from custom_types import Mode, Coord, Result
 
 def print_result(res: Result):
     for y in reversed(range(H)):
@@ -28,8 +26,6 @@ def print_result(res: Result):
                 print(cd("██", "light_green"),end="")
         print()
 
-print_result(a_star())
+print_result(a_star(Mode.BASIC))
 print()
-print_result(screened_a_star())
-print()
-print_result(mod_a_star())
+print_result(a_star(Mode.SCREENED))

@@ -2,7 +2,7 @@
 import heapq
 
 from map_const import H, W, S, G, in_bounds, is_wall
-from custom_types import Coord, FrontierObj, Result
+from custom_types import Mode, Coord, FrontierObj, Result
 from shared import EPS, euc_dist, h, reconstruct_path, build_rim
 
 def valid_neighbors(c: Coord):
@@ -19,7 +19,24 @@ def valid_neighbors(c: Coord):
 
     return not_walls
 
-def a_star():
+def screened_neighbors(c: Coord):
+    # N, E, S, W, NE, SE, SW, NE
+    mask = (Coord(c.x,c.y+1), Coord(c.x+1,c.y), Coord(c.x,c.y-1),
+            Coord(c.x-1,c.y), Coord(c.x+1,c.y+1), Coord(c.x+1,c.y-1),
+            Coord(c.x-1,c.y-1), Coord(c.x-1,c.y+1))
+
+    screened = []
+
+    for n in mask:
+        if in_bounds(n) and not is_wall(n):
+            # Compare euclidean distances from goal. Only add node to the open
+            # set if it is closer to the goal
+            if euc_dist(n, G) + EPS < euc_dist(c, G):
+                screened.append(n)
+
+    return screened
+
+def a_star(mode: Mode):
     # g[n] is the cheapest path from start to node n. This is an array the size
     # of the map with g[start] initialized to 0 and the rest to infinity.
     g = [[float('inf') for _ in range(H)] for _ in range(W)]
@@ -32,8 +49,7 @@ def a_star():
     f[S.x][S.y] = h(S)
 
     # Discovered nodes, sorted by f-score, then order added, then g-score
-    seq = 0
-    open_set = [FrontierObj(f[S.x][S.y], seq, g[S.x][S.y], S)]
+    open_set = [FrontierObj(f[S.x][S.y], g[S.x][S.y], S)]
     heapq.heapify(open_set)
 
     # Pairs of coordinates and their cheapest predecessors
@@ -70,7 +86,12 @@ def a_star():
             return result
 
         # Expand node
-        for n in valid_neighbors(c):
+        if mode == Mode.BASIC:
+            neighbors = valid_neighbors(c)
+        else:
+            neighbors = screened_neighbors(c)
+
+        for n in neighbors:
             # g[current] + d(current)
             candidate_g = g[c.x][c.y] + euc_dist(c,n)
 
@@ -81,9 +102,8 @@ def a_star():
                 f[n.x][n.y] = candidate_g + h(n)
 
                 # Add the neighbor to the open set
-                seq += 1
                 heapq.heappush(
-                    open_set, FrontierObj(f[n.x][n.y], seq, g[n.x][n.y], n))
+                    open_set, FrontierObj(f[n.x][n.y], g[n.x][n.y], n))
                 seen.add(n)
 
     # Return nothing if no path found
