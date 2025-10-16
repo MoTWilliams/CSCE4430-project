@@ -1,4 +1,9 @@
 # pylint: disable=missing-docstring
+from enum import Enum
+
+class Mode(Enum):
+    BASIC = 0
+    SCREENED = 1
 
 class Coord:
     def __init__(self, x, y):
@@ -15,24 +20,13 @@ class Coord:
         return hash((self.x, self.y))
 
 class FrontierObj:
-    def __init__(self, f: float, seq: int, g: float, pos: Coord):
+    def __init__(self, f: float, g: float, pos: Coord):
         self.f = f
-        self.seq = seq
         self.g = g
         self.pos = Coord(pos.x,pos.y)
     def __lt__(self, other):
-        # Enforce min-heap comparison and tie-breaker
-        return (self.f, self.seq, self.g) < (other.f, other.seq, other.g)
-
-class FrontierObjMod:
-    def __init__(self, f: float, seq: int, g: float, pos: Coord):
-        self.f = f
-        self.seq = seq
-        self.g = g
-        self.pos = Coord(pos.x,pos.y)
-    def __lt__(self, other):
-        # Enforce min-heap comparison and tie-breaker
-        return (self.f, -self.g, self.seq) < (other.f, -other.g, other.seq)
+        # Enforce min-heap comparison
+        return (self.f) < (other.f)
 
 class Result:
     def __init__(self):
