@@ -1,7 +1,7 @@
 Group members: Daniel Dahun Ju 
-William Morgan,
+Morgan Williams,
 Cullen Houghton,
 Adrian Pedraza,
 Basleale Solomon 
 program:
-A* Algorithm
+Simulation of A* Algorithm
