@@ -9,15 +9,15 @@ class Coord:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+
     def __eq__(self, other):
-        # Enforce that other is also a Coord and compare x and y values
-        # This is basically operator overloading
-        x_eq = self.x == other.x
-        y_eq = self.y == other.y
-        return isinstance(other, Coord) and x_eq and y_eq
+        return isinstance(other, Coord) and self.x == other.x and self.y == other.y
+
     def __hash__(self):
-        # Allow Coord objects to be used as dictionary keys and stored in sets
         return hash((self.x, self.y))
+
+    def __repr__(self):
+        return f"({self.x}, {self.y})"
 
 class FrontierObj:
     def __init__(self, f: float, g: float, pos: Coord):

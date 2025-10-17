@@ -1,83 +1,74 @@
 # pylint: disable=missing-docstring
 import heapq
-
 from map_const import H, W, S, G, in_bounds, is_wall
 from custom_types import Mode, Coord, FrontierObj, Result
 from shared import EPS, euc_dist, h, reconstruct_path, build_rim
 
+
 def valid_neighbors(c: Coord):
-    # N, E, S, W, NE, SE, SW, NE
-    mask = (Coord(c.x,c.y+1), Coord(c.x+1,c.y), Coord(c.x,c.y-1),
-            Coord(c.x-1,c.y), Coord(c.x+1,c.y+1), Coord(c.x+1,c.y-1),
-            Coord(c.x-1,c.y-1), Coord(c.x-1,c.y+1))
+    mask = (
+        Coord(c.x, c.y + 1), Coord(c.x + 1, c.y), Coord(c.x, c.y - 1), Coord(c.x - 1, c.y),
+        Coord(c.x + 1, c.y + 1), Coord(c.x + 1, c.y - 1),
+        Coord(c.x - 1, c.y - 1), Coord(c.x - 1, c.y + 1)
+    )
+    return [n for n in mask if in_bounds(n) and not is_wall(n)]
 
-    not_walls = []
-
-    for check in mask:
-        if in_bounds(check) and not is_wall(check):
-            not_walls.append(check)
-
-    return not_walls
 
 def screened_neighbors(c: Coord):
-    # N, E, S, W, NE, SE, SW, NE
-    mask = (Coord(c.x,c.y+1), Coord(c.x+1,c.y), Coord(c.x,c.y-1),
-            Coord(c.x-1,c.y), Coord(c.x+1,c.y+1), Coord(c.x+1,c.y-1),
-            Coord(c.x-1,c.y-1), Coord(c.x-1,c.y+1))
+    """
+    Implements a relaxed screening rule inspired by
+    'Path Planning of Mobile Robot Based on A* Algorithm'.
+    It keeps neighbors that improve the heuristic evaluation,
+    but still allows detours if no such nodes exist.
+    """
+    mask = (
+        Coord(c.x, c.y + 1), Coord(c.x + 1, c.y), Coord(c.x, c.y - 1), Coord(c.x - 1, c.y),
+        Coord(c.x + 1, c.y + 1), Coord(c.x + 1, c.y - 1),
+        Coord(c.x - 1, c.y - 1), Coord(c.x - 1, c.y + 1)
+    )
 
-    screened = []
+    hc = euc_dist(c, G)
+    RELAX = .53
 
+
+   # allow slight tolerance
+
+    valid, preferred = [], []
     for n in mask:
         if in_bounds(n) and not is_wall(n):
-            # Compare euclidean distances from goal. Only add node to the open
-            # set if it is closer to the goal
-            if euc_dist(n, G) + EPS < euc_dist(c, G):
-                screened.append(n)
+            valid.append(n)
+            hn = euc_dist(n, G)
+            # accept if better heuristic OR nearly the same
+            if hn <= hc + RELAX:
+                preferred.append(n)
 
-    return screened
+    # fallback if nothing qualified
+    return preferred if preferred else valid
+
 
 def a_star(mode: Mode):
-    # g[n] is the cheapest path from start to node n. This is an array the size
-    # of the map with g[start] initialized to 0 and the rest to infinity.
-    g = [[float('inf') for _ in range(H)] for _ in range(W)]
-    g[S.x][S.y] = 0
+    # Initialize grids as g[y][x]
+    g = [[float('inf') for _ in range(W)] for _ in range(H)]
+    f = [[float('inf') for _ in range(W)] for _ in range(H)]
+    g[S.y][S.x] = 0
+    f[S.y][S.x] = h(S)
 
-    # f[n] = g[n] + h(n), where heuristic h(n) is the euclidean distance from n
-    # to the goal. This is also an array the size of the map initialized to
-    # infinity with f[start] = h(start)
-    f = [[float('inf') for _ in range(H)] for _ in range(W)]
-    f[S.x][S.y] = h(S)
-
-    # Discovered nodes, sorted by f-score, then order added, then g-score
-    open_set = [FrontierObj(f[S.x][S.y], g[S.x][S.y], S)]
+    open_set = [FrontierObj(f[S.y][S.x], g[S.y][S.x], S)]
     heapq.heapify(open_set)
-
-    # Pairs of coordinates and their cheapest predecessors
     came_from = {}
-
-    # Finalized nodes. No cheaper paths exist through closed[n] to goal
     closed = set()
+    seen = {S}
 
-    # All nodes touched or seen
-    seen = set()
-    seen.add(S)
-
-    # A* algorithm. Find the cheapest path
-    while len(open_set) > 0:
+    while open_set:
         current = heapq.heappop(open_set)
         c = current.pos
 
-        # Skip closed nodes
         if c in closed:
             continue
 
-        # Discard stale frontier entries, allow a tiny epsilon for rounding
-        if current.g > g[c.x][c.y] + EPS :
-            continue
-        else:
-            closed.add(c)
+        closed.add(c)
 
-        # Finished when the goal is reached
+        # Goal reached
         if c == G:
             result = Result()
             result.path = reconstruct_path(came_from, c)
@@ -85,26 +76,25 @@ def a_star(mode: Mode):
             result.rim = build_rim(open_set, closed)
             return result
 
-        # Expand node
+        # Choose expansion method
         if mode == Mode.BASIC:
             neighbors = valid_neighbors(c)
         else:
             neighbors = screened_neighbors(c)
 
         for n in neighbors:
-            # g[current] + d(current)
-            candidate_g = g[c.x][c.y] + euc_dist(c,n)
+            cost = euc_dist(c, n)
+            candidate_g = g[c.y][c.x] + cost
 
-            if candidate_g < g[n.x][n.y]:
-                # Record the new cheapest neighbor
+            # Relaxation
+            if candidate_g + EPS < g[n.y][n.x]:
                 came_from[n] = c
-                g[n.x][n.y] = candidate_g
-                f[n.x][n.y] = candidate_g + h(n)
-
-                # Add the neighbor to the open set
-                heapq.heappush(
-                    open_set, FrontierObj(f[n.x][n.y], g[n.x][n.y], n))
+                g[n.y][n.x] = candidate_g
+                f[n.y][n.x] = candidate_g + h(n)
+                heapq.heappush(open_set, FrontierObj(f[n.y][n.x], g[n.y][n.x], n))
                 seen.add(n)
 
-    # Return nothing if no path found
-    return Result()
+    # If goal was never reached
+    result = Result()
+    result.cloud = seen
+    return result
