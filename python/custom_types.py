@@ -1,17 +1,26 @@
-# pylint: disable=missing-docstring
+"""
+Objects used to neatly contain coordinates, priority queue elements, and results
+"""
 from enum import Enum
 
 class Mode(Enum):
+    """
+    Neighbor check mode labels
+    """
     BASIC = 0
     SCREENED = 1
 
 class Coord:
+    """
+    Neatly contain cell coordinates for easy x,y referencing
+    """
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
     def __eq__(self, other):
-        return isinstance(other, Coord) and self.x == other.x and self.y == other.y
+        return isinstance(other, Coord) \
+            and self.x == other.x and self.y == other.y
 
     def __hash__(self):
         return hash((self.x, self.y))
@@ -20,6 +29,10 @@ class Coord:
         return f"({self.x}, {self.y})"
 
 class FrontierObj:
+    """
+    Couple f- and g-scores to cell coordinates and enforce min-heap ordering by 
+    f-score
+    """
     def __init__(self, f: float, g: float, pos: Coord):
         self.f = f
         self.g = g
@@ -29,6 +42,10 @@ class FrontierObj:
         return (self.f) < (other.f)
 
 class Result:
+    """
+    Neatly package the search cloud, frontier upon completion, and the found
+    path itself
+    """
     def __init__(self):
         self.path: list = []
         self.rim: set = set()

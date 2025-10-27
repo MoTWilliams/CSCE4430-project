@@ -30,19 +30,18 @@ def print_result(res: Result):
 
 
 def path_length(path):
-    return sum(euc_dist(path[i-1], path[i]) for i in range(1, len(path))) if len(path) >= 2 else 0.0
+    return sum(euc_dist(path[i-1], path[i]) for i in range(1, len(path))) \
+        if len(path) >= 2 else 0.0
 
 
 def print_metrics(name: str, res: Result):
     print(
         f"\n{name:<7}| nodes explored = {len(res.cloud)} | "
-        f"path steps = {len(res.path)} | path length = {path_length(res.path):.2f}"
+        f"path steps = {len(res.path)} | "
+        f"path length = {path_length(res.path):.2f}\n"
     )
     if not res.path:
         print(cd(f"{name} WARNING: No path found.", "red"))
-
-
-print()
 
 
 # --- BASIC ---
@@ -59,4 +58,5 @@ print_metrics("SCREEN", res_screen)
 # --- Comparison ---
 if len(res_basic.cloud) > 0 and len(res_screen.cloud) > 0:
     reduction = (len(res_basic.cloud) - len(res_screen.cloud)) / len(res_basic.cloud) * 100
-    print(f"\nReduction in explored nodes (SCREEN vs BASIC): {reduction:.2f}%  (paper ≈ 13.18%)")
+    print(f"Reduction in explored nodes (SCREEN vs BASIC): {reduction:.2f}% "
+          f" (paper ≈ 13.18%)")
