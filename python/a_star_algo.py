@@ -78,6 +78,9 @@ def a_star(mode: Mode):
     # f[n] is the estimated total cost of the cheapest known path from start to
     # goal through n, calculated as f[n] = g[n] + h(n), where heuristic h(n) is
     # the euclidean distance from n to goal. f[start] is initialized to h(start)
+
+    # MODIFIED FOR ALGO COMPARISON--f[n] is just the cost of the current path,
+    # calculated differently for each algorithm
     f = [[float('inf') for _ in range(W)] for _ in range(H)]
     f[S.y][S.x] = h(S)
 
@@ -109,17 +112,15 @@ def a_star(mode: Mode):
 
         # Goal reached
         if c == G:
-            result = Result()
+            result = Result(mode)
             result.path = reconstruct_path(came_from, c)
             result.cloud = seen
             result.rim = build_rim(open_set, closed)
             return result
 
         # Choose expansion method
-        if mode == Mode.BASIC:
-            neighbors = valid_neighbors(c)
-        else:
-            neighbors = screened_neighbors(c)
+        neighbors = screened_neighbors(c) if mode == Mode.SCREENED \
+            else valid_neighbors(c)
 
         # Expand the current node
         for n in neighbors:
@@ -130,13 +131,15 @@ def a_star(mode: Mode):
             if candidate_g + EPS < g[n.y][n.x]:
                 came_from[n] = c
                 g[n.y][n.x] = candidate_g
-                f[n.y][n.x] = candidate_g + h(n)
+                # This line modified for comparison
+                f[n.y][n.x] = candidate_g if mode == Mode.DIJKSTRA \
+                    else h(n) if mode == Mode.GREEDY else candidate_g + h(n)
                 heapq.heappush(
                     open_set, FrontierObj(f[n.y][n.x], g[n.y][n.x], n)
                 )
                 seen.add(n)
 
     # If goal was never reached
-    result = Result()
+    result = Result(mode)
     result.cloud = seen
     return result

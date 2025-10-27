@@ -5,10 +5,12 @@ from enum import Enum
 
 class Mode(Enum):
     """
-    Neighbor check mode labels
+    Algorithm and neighbor check mode labels
     """
-    BASIC = 0
-    SCREENED = 1
+    BASIC = "Basic A*"
+    SCREENED = "Screened A*"
+    DIJKSTRA = "Dijkstra's"
+    GREEDY = "Greedy Best-First"
 
 class Coord:
     """
@@ -46,7 +48,8 @@ class Result:
     Neatly package the search cloud, frontier upon completion, and the found
     path itself
     """
-    def __init__(self):
+    def __init__(self, mode: Mode):
+        self.mode: Mode = mode
         self.path: list = []
         self.rim: set = set()
         self.cloud: set = set()
