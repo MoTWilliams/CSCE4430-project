@@ -7,10 +7,13 @@ class Mode(Enum):
     """
     Algorithm and neighbor check mode labels
     """
-    BASIC = "Basic A*"
-    SCREENED = "Screened A*"
-    DIJKSTRA = "Dijkstra's"
-    GREEDY = "Greedy Best-First"
+    BASIC = {"label":"Basic A*", "cost function":"f = g + h"}
+    SCREENED = {
+        "label":"Screened A*", 
+        "cost function":"f = g + h (with node screening)"
+        }
+    DIJKSTRA = {"label":"Dijkstra's", "cost function":"f = g"}
+    GREEDY = {"label":"Greedy Best-First", "cost function":"f = h"}
 
 class Coord:
     """

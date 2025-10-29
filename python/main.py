@@ -13,8 +13,8 @@ def path_length(path):
 
 def print_2results(r1: Result, r2: Result):
     gap = 8
-    title1 = r1.mode.value.center(2*W," ")
-    title2 = r2.mode.value.center(2*W," ")
+    title1 = r1.mode.value["label"].center(2*W," ")
+    title2 = r2.mode.value["label"].center(2*W," ")
     print(title1 + " "*2*gap + title2)
     for y in reversed(range(H)):
         for x in range(W + gap + W + 1):
@@ -59,10 +59,11 @@ def print_2results(r1: Result, r2: Result):
     print()
 
 def tabulate(result_list: list[Result]):
-    rule = "+" + "-"*19 + "+" + "-"*14 + "+" + "-"*14 + "+" + "-"*14 + "+"
+    rule = "+"+"-"*19+"+"+"-"*31+"+"+"-"*14+"+"+"-"*14+"+"+"-"*14+"+"
     rule = rule.center(16+4*W," ")
 
-    labels = "|" + "Algorithm".ljust(19," ") + "|"
+    labels = "|" + "Algorithm".center(19," ") + "|"
+    labels += "cost function f(n)".center(31," ") + "|"
     labels += "Nodes Explored".center(14," ") + "|"
     labels += "Path Steps".center(14," ") + "|"
     labels += "Path Length".center(14," ") + "|"
@@ -71,7 +72,8 @@ def tabulate(result_list: list[Result]):
     print(rule + "\n" + labels + "\n" + rule)
 
     for r in result_list:
-        res = "|" + r.mode.value.ljust(19," ") + "|"
+        res = "|" + r.mode.value["label"].ljust(19," ") + "|"
+        res += r.mode.value["cost function"].center(31," ") + "|"
 
         if not r.path:
             res += "Path not found".center(44," ") + "|"
@@ -86,7 +88,7 @@ def tabulate(result_list: list[Result]):
     print()
 
 def print_1result(res: Result):
-    print(res.mode.value.center(W," "))
+    print(res.mode.value["label"].center(W," "))
     for y in reversed(range(H)):
         for x in range(W):
             c = Coord(x, y)
