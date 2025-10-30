@@ -12,7 +12,7 @@ class Mode(Enum):
         "label":"Screened A*", 
         "cost function":"f = g + h (with node screening)"
         }
-    DIJKSTRA = {"label":"Dijkstra's", "cost function":"f = g"}
+    UNIFORM = {"label":"Uniform-Cost", "cost function":"f = g"}
     GREEDY = {"label":"Greedy Best-First", "cost function":"f = h"}
 
 class Coord:

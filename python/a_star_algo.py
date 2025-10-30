@@ -132,7 +132,7 @@ def a_star(mode: Mode):
                 came_from[n] = c
                 g[n.y][n.x] = candidate_g
                 # This line modified for comparison
-                f[n.y][n.x] = candidate_g if mode == Mode.DIJKSTRA \
+                f[n.y][n.x] = candidate_g if mode == Mode.UNIFORM \
                     else h(n) if mode == Mode.GREEDY else candidate_g + h(n)
                 heapq.heappush(
                     open_set, FrontierObj(f[n.y][n.x], g[n.y][n.x], n)

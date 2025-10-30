@@ -113,9 +113,9 @@ def print_1result(res: Result):
 print("\nLegend: ██ = obstacle, ",end="")
 print(cd("██", "green") + " = start, " + cd("██", "red") + " = goal, ",end="")
 print(cd("██", "blue") + " = path, ",end="")
-print(cd("██", "light_yellow") + " = seen, ",end="")
-print(cd("██", "light_blue") + " = visited, ",end="")
-print(cd("██", "light_green") + " = untouched\n")
+print(cd("██", "light_yellow") + " = frontier, ",end="")
+print(cd("██", "light_blue") + " = explored, ",end="")
+print(cd("██", "light_green") + " = unexplored\n")
 
 results = []
 for mode in Mode:
